@@ -3,6 +3,7 @@ name: Add-ons
 # Builds only what changed under addons/. Separate from CI on purpose: an add-on can't block or
 # slow the launcher's build, and the launcher's size gate never sees add-on code.
 on:
+  workflow_dispatch:
   pull_request:
     paths: ["addons/**"]
   push:
@@ -31,7 +32,11 @@ jobs:
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
-          changed=$(git diff --name-only "$BASE" HEAD -- addons | awk -F/ 'NF>2 {print $2}' | sort -u)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            changed=prayer-times
+          else
+            changed=$(git diff --name-only "$BASE" HEAD -- addons | awk -F/ 'NF>2 {print $2}' | sort -u)
+          fi
           [ -z "$changed" ] && { echo "no add-on changed"; exit 0; }
           for a in $changed; do
             [ -d "addons/$a" ] || continue
