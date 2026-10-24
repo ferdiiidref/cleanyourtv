@@ -45,3 +45,11 @@ jobs:
             (cd "addons/$a" && chmod +x gradlew && ./gradlew --no-daemon assembleRelease)
             echo "::endgroup::"
           done
+      - name: Upload Prayer Times APK
+        if: success() && github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: prayer-times-depok
+          path: addons/prayer-times/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 7
